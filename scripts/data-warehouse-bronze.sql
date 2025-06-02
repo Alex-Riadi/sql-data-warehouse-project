@@ -67,6 +67,7 @@ CREATE TABLE bronze.erp_px_cat_g1v2 (
 CREATE OR ALTER PROCEDURE bronze.load_bronze AS
 BEGIN 
 	DECLARE @start_time DATETIME, @end_time DATETIME, @batch_start_time DATETIME, @batch_end_time DATETIME;
+	BEGIN TRY
 	PRINT '======================================='
 	PRINT 'LOADING BRONZE LAYER'
 	PRINT '======================================='
@@ -173,7 +174,15 @@ BEGIN
 	PRINT ' '
 	SET @batch_end_time = GETDATE();
 	PRINT '>> Load batch duration: ' + CAST(DATEDIFF(second, @batch_start_time, @batch_end_time) AS NVARCHAR) + ' seconds'
-	PRINT ' '
+	PRINT ' ';
+	END TRY
+	BEGIN CATCH
+		PRINT '========================================='
+		PRINT 'ERROR OCCURED DURING LOADING BRONZE LAYER'
+		PRINT 'Error Message' + CAST (ERROR_NUMBER() AS NVARCHAR)
+		PRINT 'Error Message' + CAST (ERROR_STATE() AS NVARCHAR)
+		PRINT '========================================='
+	END CATCH
 END
 
 EXEC bronze.load_bronze
